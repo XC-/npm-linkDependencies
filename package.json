@@ -1,0 +1,19 @@
+{
+  "name": "npm-linkdependencies",
+  "version": "1.0.0",
+  "description": "Tool to help with npm package development",
+  "main": " ",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/XC-/npm-linkDependencies.git"
+  },
+  "author": "Aki Mäkinen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/XC-/npm-linkDependencies/issues"
+  },
+  "homepage": "https://github.com/XC-/npm-linkDependencies#readme"
+}
