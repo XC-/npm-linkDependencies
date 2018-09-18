@@ -79,73 +79,106 @@ function readSettings(dir) {
 
 function arrayLink(linkableModules, cwd) {
   const successes = linkableModules.reduce((acc, item) => {
+    console.log(`Linking ${item}`);
     const call = spawnSync("npm", ["link", item], {cwd});
 
     if (call.status === 0) {
+      console.log("Linking successful!");
       return acc.concat([item]);
     } else {
       console.log(`Npm link for ${item} failed with messages: `);
-      console.log(call.stdout);
-      console.log(call.stderr);
+      console.log(call.stdout.toString());
+      console.log(call.stderr.toString());
     }
     return acc;
   }, []);
 
   if (successes.length !== linkableModules.length) {
     console.log("Linking failed for some packages, starting rollback");
-    const rbSuccesses = successes.reduce((acc, item) => {
-      const call = spawnSync("npm", ["unlink", item], {cwd});
-      if (call.status === 0) {
-        return acc.concat([item]);
-      } else {
-        console.log(`Npm link for ${item} has failed with messages: `);
-        console.log(call.stdout);
-        console.log(call.stderr);
-        console.log("This link has to be removed manually");
-      }
-      return acc;
-    }, []);
-
-    if (rbSuccesses.length !== successes.length) {
-      console.log("Rollback was successful only partially. Following modules have to be removed manually:");
-      console.log(successes.length.filter((item) => rbSuccesses.indexOf(item) === -1));
-      process.exit(1);
-    }
+    console.log("Rollback disabled temporarily because npm unlink == npm uninstall.");
+    console.log("Please remove extra links and packages manually.");
+    // const rbSuccesses = successes.reduce((acc, item) => {
+    //   const call = spawnSync("npm", ["unlink", item], {cwd});
+    //   if (call.status === 0) {
+    //     return acc.concat([item]);
+    //   } else {
+    //     console.log(`Npm link for ${item} has failed with messages: `);
+    //     console.log(call.stdout.toString());
+    //     console.log(call.stderr.toString());
+    //     console.log("This link has to be removed manually");
+    //   }
+    //   return acc;
+    // }, []);
+    //
+    // if (rbSuccesses.length !== successes.length) {
+    //   console.log("Rollback was successful only partially. Following modules have to be removed manually:");
+    //   console.log(successes.length.filter((item) => rbSuccesses.indexOf(item) === -1));
+    //   process.exit(1);
+    // }
   } else {
     console.log("All modules linked successfully!")
   }
 }
 
-function objectLink(linkableModuleKeys, dependencies, cwd) {
-  const successes = linkableModuleKeys.reduce((acc, item) => {
-    console.log(`Linking ${item}...`);
+function objectLink(linkableModuleKeys, dependencies, cwd, fallBackToInstall) {
+  const canBeLinked = linkableModuleKeys.reduce((acc, item) => {
     const linkCall = spawnSync("npm", ["link", item], {cwd});
-    if (call.status === 0) {
-      console.log("Linking successful!");
-      return acc.concat([item])
-    } else {
-      console.log("Linking failed. Falling back to npm install...");
-      const installCall = spawnSync("npm", ["install", dependencies[item]], {cwd});
-      if (installCall.status === 0) {
-        console.log("npm install completed successfully!");
-        return acc.concat([item]);
-      } else {
-        console.log(`npm install of package ${item} failed with messages: `);
-        console.log(installCall.stdout);
-        console.log(installCall.stderr);
-        console.log("Additional messages from npm link: ");
-        console.log(linkCall.stdout);
-        console.log(linkCall.stderr);
-      }
+    if (linkCall.status === 0) {
+      return acc.concat([item]);
     }
     return acc;
-  });
-  if (successes.length !== linkableModuleKeys.length) {
-    console.log("npm link succeeded only partially. Automatic rollback not yet implemented. Manual rollback required for the packages: ");
-    console.log(successes);
-    process.exit(1);
-  } else {
-    console.log("All modules linked successfully!");
+  }, []);
+
+  if (fallBackToInstall) {
+    console.log("Running install for packages that cannot be linked");
+    const mustBeInstalled = linkableModuleKeys.filter((item) => canBeLinked.indexOf(item) === -1);
+    if (mustBeInstalled.length > 0) {
+      const installSuccesses = mustBeInstalled.reduce((acc, item) => {
+        console.log(`Running install for ${item} (${dependencies[item]})`);
+        const installCall = spawnSync("npm", ["install", dependencies[item]], {cwd});
+        if (installCall.status === 0) {
+          return acc.concat([item]);
+        } else {
+          console.log(`npm install of package ${item} failed with messages: `);
+          console.log(installCall.stdout.toString());
+          console.log(installCall.stderr.toString());
+        }
+        return acc;
+      }, []);
+
+      if (installSuccesses.length !== mustBeInstalled.length) {
+        console.log("npm install failed for the following packages: ");
+        console.log(mustBeInstalled.filter((item) => installSuccesses.indexOf(item) === -1).join(", "));
+        console.log("Exiting");
+        process.exit(1);
+      } else {
+        console.log("npm install complete!");
+      }
+    }
+  }
+
+  console.log("Running npm link for the packages...");
+  if (canBeLinked.length > 0) {
+    const linkingSuccesses = canBeLinked.reduce((acc, item) => {
+      console.log(`Running npm link for ${item}`);
+      const linkCall = spawnSync("npm", ["link", item], {cwd});
+      if (linkCall.status === 0) {
+        return acc.concat([item]);
+      } else {
+        console.log(`npm link failed with messages: `);
+        console.log(linkCall.stdout.toString());
+        console.log(linkCall.stderr.toString());
+      }
+      return acc;
+    }, []);
+
+    if (linkingSuccesses.length !== canBeLinked.length) {
+      console.log("npm link succeeded only partially. Automatic rollback not yet implemented. Manual rollback required for the packages: ");
+      console.log(successes.join(", "));
+      process.exit(1);
+    } else {
+      console.log("All modules linked successfully!");
+    }
   }
 }
 
@@ -179,7 +212,7 @@ if (require.main === module) {
     const linkableModuleKeys = Object.keys(settings.dependencies).reduce(moduleReducer, []);
 
     if (linkableModuleKeys.length > 0) {
-      objectLink(linkableModuleKeys, settings.dependencies, cwd);
+      objectLink(linkableModuleKeys, settings.dependencies, cwd, settings.fallbackToInstall);
     } else {
       console.log("Nothing to link or install :(")
     }
