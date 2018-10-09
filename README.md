@@ -17,10 +17,6 @@ The best option would be that the information on which packages need to be linke
 even with monorepo) to keep the information in proper context and in one place. Whatever the solution is, it should also
 take the production deployment/environment into account and use published packages there.
 
-<honest-why>
-A solution might exist somewhere in the Internet, but I am a lazy programmer and did not google too much on this so as
-we finns say: "Tein itse ja säästin" (straight translation: "Did it myself and saved money")... and it is kind of fun also.
-</honest-why>
 
 ## What
 
