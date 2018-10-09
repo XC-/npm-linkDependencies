@@ -3,13 +3,8 @@ const fs = require("fs");
 
 const { spawnSync } = require("child_process");
 
-const defaults = require("./defaults.json");
-
-const LINK_DEPENDENCIES_CONF_KEY = "linkDependencies";
-
-function throwTypeError(value, expected, got) {
-  throw TypeError(`${value} has invalid type. Expected: ${expected}. Got: {got}`);
-}
+const { readAndValidateSettings } = require("./utils/configuration");
+const exitProcess = require("./utils/process");
 
 function printHeader() {
   console.log(`
@@ -19,62 +14,6 @@ function printHeader() {
     |             https://github.com/XC-/npm-linkDependencies               |
     |***********************************************************************|
   `)
-}
-
-
-function verifySettings(settings) {
-  for (const key in settings) {
-    if (settings.hasOwnProperty(key)) {
-      switch (key) {
-        case "installPeerDependencies":
-          if (typeof settings[key] !== "boolean") {
-            throwTypeError(key, "boolean", typeof settings[key]);
-          }
-          break;
-        case "fallbackToInstall":
-          if (typeof settings[key] !== "boolean") {
-            throwTypeError(key, "boolean", typeof settings[key]);
-          }
-          break;
-        case "dependencies":
-          if (settings[key]) {
-            if (Array.isArray(settings[key])) {
-              if (settings.fallbackToInstall === true) {
-                throw Error("Dependencies cannot be defined as an array when fallbackToInstall is set true.")
-              }
-              for (const entry in settings[key]) {
-                if (typeof entry !== "string") {
-                  throwTypeError(entry, "string", typeof entry);
-                }
-              }
-            } else if (typeof settings[key] === "object") {
-              for (const depKey in settings[key]) {
-                if (settings[key].hasOwnProperty(depKey)) {
-                  if (typeof depKey !== "string" || typeof settings[key][depKey] !== "string") {
-                    throwTypeError(depKey, "string", typeof settings[key][depKey]);
-                  }
-                }
-              }
-            } else {
-              throwTypeError(key, "array or {}", typeof settings[key]);
-            }
-          }
-          break;
-        default:
-          console.log(`Unknown option ${key}, ignoring.`);
-          break;
-      }
-    }
-  }
-}
-
-function readSettings(dir) {
-  const packageJson = require(path.join(dir, "package.json"));
-
-  if (Object.keys(packageJson).indexOf(LINK_DEPENDENCIES_CONF_KEY) > -1) {
-    return Object.assign(defaults, packageJson[LINK_DEPENDENCIES_CONF_KEY]);
-  }
-  return defaults;
 }
 
 function arrayLink(linkableModules, cwd) {
@@ -94,27 +33,8 @@ function arrayLink(linkableModules, cwd) {
   }, []);
 
   if (successes.length !== linkableModules.length) {
-    console.log("Linking failed for some packages, starting rollback");
-    console.log("Rollback disabled temporarily because npm unlink == npm uninstall.");
-    console.log("Please remove extra links and packages manually.");
-    // const rbSuccesses = successes.reduce((acc, item) => {
-    //   const call = spawnSync("npm", ["unlink", item], {cwd});
-    //   if (call.status === 0) {
-    //     return acc.concat([item]);
-    //   } else {
-    //     console.log(`Npm link for ${item} has failed with messages: `);
-    //     console.log(call.stdout.toString());
-    //     console.log(call.stderr.toString());
-    //     console.log("This link has to be removed manually");
-    //   }
-    //   return acc;
-    // }, []);
-    //
-    // if (rbSuccesses.length !== successes.length) {
-    //   console.log("Rollback was successful only partially. Following modules have to be removed manually:");
-    //   console.log(successes.length.filter((item) => rbSuccesses.indexOf(item) === -1));
-    //   process.exit(1);
-    // }
+    exitProcess.npmLInkError("Linking failed for some packages.");
+
   } else {
     console.log("All modules linked successfully!")
   }
@@ -139,9 +59,9 @@ function objectLink(linkableModuleKeys, dependencies, cwd, fallBackToInstall) {
         if (installCall.status === 0) {
           return acc.concat([item]);
         } else {
-          console.log(`npm install of package ${item} failed with messages: `);
-          console.log(installCall.stdout.toString());
-          console.log(installCall.stderr.toString());
+          console.error(`npm install of package ${item} failed with messages: `);
+          console.error(installCall.stdout.toString());
+          console.error(installCall.stderr.toString());
         }
         return acc;
       }, []);
@@ -149,8 +69,7 @@ function objectLink(linkableModuleKeys, dependencies, cwd, fallBackToInstall) {
       if (installSuccesses.length !== mustBeInstalled.length) {
         console.log("npm install failed for the following packages: ");
         console.log(mustBeInstalled.filter((item) => installSuccesses.indexOf(item) === -1).join(", "));
-        console.log("Exiting");
-        process.exit(1);
+        exitProcess.npmInstallError();
       } else {
         console.log("npm install complete!");
       }
@@ -173,9 +92,8 @@ function objectLink(linkableModuleKeys, dependencies, cwd, fallBackToInstall) {
     }, []);
 
     if (linkingSuccesses.length !== canBeLinked.length) {
-      console.log("npm link succeeded only partially. Automatic rollback not yet implemented. Manual rollback required for the packages: ");
-      console.log(successes.join(", "));
-      process.exit(1);
+      console.error("npm link succeeded only partially. Automatic rollback not yet implemented. Manual rollback required for the packages: ");
+      exitProcess.npmLinkError(successes.join(", "));
     } else {
       console.log("All modules linked successfully!");
     }
@@ -186,16 +104,34 @@ function objectLink(linkableModuleKeys, dependencies, cwd, fallBackToInstall) {
 if (require.main === module) {
   printHeader();
   const cwd = process.cwd();
-  const settings = readSettings(cwd);
+  let settings = {};
   try {
-    verifySettings(settings);
-  } catch (e) {
-    console.log("Failed to verify settings.");
-    console.log(e.message);
+    settings = readAndValidateSettings(cwd);
+  } catch(e) {
+    if (e instanceof TypeError) {
+      console.error("Error when validating the configuration: ");
+      console.error(e.message);
+
+      exitProcess.configurationValidationError();
+    } else {
+      exitProcess.genericError(e);
+    }
   }
 
   if (settings.installPeerDependencies === true) {
     console.log("installPeerDependencies is set to true. Unfortunately this is not yet implemented.");
+  }
+
+  if (settings.createLink === true) {
+    const createLinkCall = spawnSync("npm",["link"], {cwd});
+    if (createLinkCall.status === 0) {
+      console.log("Created initial npm link for the package successfully...")
+    } else {
+      console.error("Failed to create the initial npm link.");
+      console.error(createLinkCall.stdout.toString());
+      console.error(createLinkCall.stderr.toString());
+      exitProcess.initialNpmLinkError();
+    }
   }
 
   console.log("Starting npm linking...");
@@ -208,28 +144,29 @@ if (require.main === module) {
     return acc;
   };
 
-  if (settings.fallbackToInstall === true) {
-    const linkableModuleKeys = Object.keys(settings.dependencies).reduce(moduleReducer, []);
-
-    if (linkableModuleKeys.length > 0) {
-      objectLink(linkableModuleKeys, settings.dependencies, cwd, settings.fallbackToInstall);
-    } else {
-      console.log("Nothing to link or install :(")
+  if (Array.isArray(settings.dependencies)) {
+    if (settings.fallbackToInstall === true) {
+      console.log("fallbackToInstall is not supported when dependencies are defined as an array. Ignoring the configuration...");
     }
-  } else {
     const linkableModules = settings.dependencies.reduce(moduleReducer, []);
 
     if (linkableModules.length > 0) {
       arrayLink(linkableModules, cwd);
     } else {
-      console.log("Nothing to link :(");
+      console.log("Nothing to link :'(");
+    }
+  } else {
+    const linkableModuleKeys = Object.keys(settings.dependencies).reduce(moduleReducer, []);
+
+    if (linkableModuleKeys.length > 0) {
+      objectLink(linkableModuleKeys, settings.dependencies, cwd, settings.fallbackToInstall);
+    } else {
+      console.log("Nothing to link or install :'(")
     }
   }
 
-  console.log("Npm linking done!");
-  process.exit(0);
+  exitProcess.success("Npm linking done!");
 
 } else {
-  console.log("Importing as a library is not supported by this package.");
-  process.exit(1);
+  exitProcess.genericError("Importing as a library is not supported by this package.");
 }
