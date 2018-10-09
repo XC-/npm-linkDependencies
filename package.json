@@ -1,6 +1,6 @@
 {
   "name": "npm-linkdependencies",
-  "version": "1.0.0-alpha1",
+  "version": "1.0.0-alpha2",
   "description": "Tool to help with npm package development",
   "main": " ",
   "scripts": {
