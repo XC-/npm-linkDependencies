@@ -1,0 +1,19 @@
+{
+  "name": "c",
+  "version": "0.0.1",
+  "description": "dummy pkg",
+  "main": " ",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "linkDependencies": {
+    "fallbackToInstall": true,
+    "createLink": true,
+    "installPeerDependencies": true,
+    "dependencies": [
+      "a", "b"
+    ]
+  }
+}

@@ -4,7 +4,7 @@
   "description": "Tool to help with npm package development",
   "main": " ",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jasmine --random=false tests/*-spec.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/XC-/npm-linkDependencies/issues"
   },
-  "homepage": "https://github.com/XC-/npm-linkDependencies#readme"
+  "homepage": "https://github.com/XC-/npm-linkDependencies#readme",
+  "devDependencies": {
+    "jasmine": "3.2.0"
+  }
 }
