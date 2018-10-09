@@ -1,5 +1,8 @@
 # npm-linkDependencies
 
+Master: [![Build Status](https://travis-ci.com/XC-/npm-linkDependencies.svg?branch=master)](https://travis-ci.com/XC-/npm-linkDependencies)
+Development: [![Build Status](https://travis-ci.com/XC-/npm-linkDependencies.svg?branch=development)](https://travis-ci.com/XC-/npm-linkDependencies)
+
 ## Why
 
 In some projects, there are multiple npm packages developed simultaneously and are dependant on each other. The problem is
