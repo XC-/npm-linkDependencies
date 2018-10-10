@@ -13,7 +13,8 @@
     "createLink": true,
     "installPeerDependencies": true,
     "dependencies": [
-      "a", "b"
+      "a",
+      "b"
     ]
   }
 }

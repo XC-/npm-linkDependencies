@@ -16,5 +16,8 @@
       "a": "lodash",
       "g": "async"
     }
+  },
+  "dependencies": {
+    "async": "^2.6.1"
   }
 }

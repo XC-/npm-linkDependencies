@@ -1,3 +1,6 @@
+os:
+  - linux
+  - osx
 language: node_js
 install:
   - npm install
@@ -7,6 +10,9 @@ node_js:
   - "8"
   - "9"
   - "10"
+before_script:
+  - cd tests/dummies/a && npm link && cd ../../..
+  - cd tests/dummies/b && npm link && cd ../../..
 
 jobs:
   include:
