@@ -64,7 +64,7 @@ function objectLink(linkableModuleKeys, dependencies, cwd, fallBackToInstall) {
     if (mustBeInstalled.length > 0) {
       const installSuccesses = mustBeInstalled.reduce((acc, item) => {
         console.log(`Running install for ${item} (${dependencies[item]})`);
-        const installCall = spawnSync("npm", ["install", dependencies[item]], {cwd});
+        const installCall = spawnSync("npm", ["install", dependencies[item], "--no-save"], {cwd});
         if (installCall.status === 0) {
           return acc.concat([item]);
         } else {
@@ -113,6 +113,11 @@ function objectLink(linkableModuleKeys, dependencies, cwd, fallBackToInstall) {
 if (require.main === module) {
   printHeader();
   const cwd = process.cwd();
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //  READ AND VALIDATE SETTINGS
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   let settings = {};
   try {
     settings = readAndValidateSettings(cwd);
@@ -126,10 +131,17 @@ if (require.main === module) {
       exitProcess.genericError(e);
     }
   }
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //  INSTALL PEER DEPENDENCIES (TODO)
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   if (settings.installPeerDependencies === true) {
     console.log("installPeerDependencies is set to true. Unfortunately this is not yet implemented.");
   }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //  CREATE LINK TO PROJECT
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   if (settings.createLink === true) {
     const createLinkCall = spawnSync("npm",["link"], {cwd});
@@ -142,10 +154,16 @@ if (require.main === module) {
       exitProcess.initialNpmLinkError();
     }
   }
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //  DO THE LINKING
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  if (!settings.dependencies) {
+    exitProcess.success("Nothing to do...");
+  }
 
   console.log("Starting npm linking...");
   const modulePath = path.join(cwd, "node_modules");
-
   let installedModules = [];
   if (fs.existsSync(modulePath)) {
     installedModules = fs.readdirSync(modulePath);
