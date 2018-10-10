@@ -1,13 +1,24 @@
+function printErrorBanner() {
+  console.log(`
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !                                                                                                                    !
+  !                                            PROGRAM ENCOUNTERED AN ERROR                                            !
+  !                                                                                                                    !
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  `)
+}
+
 function exitWithCode(code) {
   return (message) => {
     if (message) {
       if (code === 0) {
         console.log(message);
       } else {
+        printErrorBanner();
         console.error(message);
       }
     }
-    console.log("Exiting link-dependencies...");
+    console.log("\nExiting link-dependencies...");
     process.exit(code);
   }
 }

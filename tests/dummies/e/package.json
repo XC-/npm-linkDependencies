@@ -10,11 +10,11 @@
   "license": "ISC",
   "linkDependencies": {
     "fallbackToInstall": true,
-    "createLink": true,
+    "createLink": false,
     "installPeerDependencies": true,
     "dependencies": [
       "a",
-      "g"
+      "b"
     ]
   }
 }
