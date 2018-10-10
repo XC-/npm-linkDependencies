@@ -20,5 +20,8 @@
   "devDependencies": {
     "fs-extra": "7.0.0",
     "jasmine": "3.2.0"
-  }
+  },
+  "keywords": [
+    "npm", "link", "dependencies", "npm link", "linkdependencies", "linkDependencies", "development", "tool", "package.json"
+  ]
 }
