@@ -35,6 +35,28 @@ describe("Run npm linking", () => {
     };
   };
 
+  beforeAll(() => {
+    process.chdir(path.join(owd, "tests", "dummies", "a"));
+    const linkA = spawnSync("npm", ["link"]);
+    expect(linkA.status).toEqual(0);
+
+    process.chdir(path.join(owd, "tests", "dummies", "b"));
+    const linkB = spawnSync("npm", ["link"]);
+    expect(linkB.status).toEqual(0);
+
+    process.chdir(owd);
+  });
+
+  afterAll(() => {
+    process.chdir(owd);
+    const rmA = spawnSync("npm", ["rm", "--global", "a"]);
+    const rmB = spawnSync("npm", ["rm", "--global", "b"]);
+    const clearA = fs.removeSync(path.join(owd, "tests", "dummies", "a", "package-lock.json"));
+    const clearB = fs.removeSync(path.join(owd, "tests", "dummies", "b", "package-lock.json"));
+    expect(rmA.status).toEqual(0);
+    expect(rmB.status).toEqual(0);
+  });
+
   describe("For package c", () => {
     const pkgPath = path.join(jsonPath, "c");
 
@@ -103,7 +125,7 @@ describe("Run npm linking", () => {
 
     beforeEach(() => {
       setup(pkgPath)();
-      fs.copySync(path.join(pkgPath, "..", "templates", "node_modules"), path.join(pkgPath));
+      fs.copySync(path.join(pkgPath, "..", "templates", "node_modules"), path.join(pkgPath, "node_modules"));
     });
     afterAll(setup(pkgPath));
 
@@ -142,7 +164,7 @@ describe("Run npm linking", () => {
 
     beforeEach(() => {
       setup(pkgPath)();
-      fs.copySync(path.join(pkgPath, "..", "templates", "node_modules"), path.join(pkgPath));
+      fs.copySync(path.join(pkgPath, "..", "templates", "node_modules"), path.join(pkgPath, "node_modules"));
     });
     afterAll(setup(pkgPath));
 
@@ -171,6 +193,23 @@ describe("Run npm linking", () => {
     it("should not have package async", () => {
       const linkCall = spawnSync("node", [scriptPath]);
       expect(fs.pathExistsSync(path.join(pkgPath, "node_modules", "async"))).toBe(false);
+    });
+  });
+
+  describe("For package h", () => {
+    const pkgPath = path.join(jsonPath, "h");
+
+    beforeEach(setup(pkgPath));
+    afterEach(setup(pkgPath));
+
+    it("successfully", () => {
+      const linkCall = spawnSync("node", [scriptPath]);
+      expect(linkCall.status).toEqual(0);
+    });
+
+    it("should not have node_modules", () => {
+      const linkCall = spawnSync("node", [scriptPath]);
+      expect(fs.pathExistsSync(path.join(pkgPath, "node_modules"))).toBe(false);
     });
   });
 

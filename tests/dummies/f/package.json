@@ -11,7 +11,9 @@
   "author": "",
   "license": "ISC",
   "linkDependencies": {
-    "a": "lodash",
-    "b": "async"
+    "dependencies": {
+      "a": "lodash",
+      "b": "async"
+    }
   }
 }
