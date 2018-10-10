@@ -16,24 +16,39 @@ function printHeader() {
   `)
 }
 
+function checkIfInitialLinkExists(pkg) {
+  const npmPrefix = spawnSync("npm", ["prefix", "-g"]).stdout.toString().trim();
+  const libPath = path.join(npmPrefix, "lib", "node_modules", pkg);
+  return fs.existsSync(libPath) && fs.lstatSync(libPath).isSymbolicLink();
+}
+
 function arrayLink(linkableModules, cwd) {
   const successes = linkableModules.reduce((acc, item) => {
     console.log(`Linking ${item}`);
-    const call = spawnSync("npm", ["link", item], {cwd});
 
-    if (call.status === 0) {
-      console.log("Linking successful!");
-      return acc.concat([item]);
+    if (checkIfInitialLinkExists(item)) {
+      const call = spawnSync("npm", ["link", item], {cwd});
+
+      if (call.status === 0) {
+        console.log("Linking successful!");
+        return acc.concat([item]);
+      } else {
+        console.log(`Npm link for ${item} failed with messages: `);
+        console.log(call.stdout.toString());
+        console.log(call.stderr.toString());
+      }
     } else {
-      console.log(`Npm link for ${item} failed with messages: `);
-      console.log(call.stdout.toString());
-      console.log(call.stderr.toString());
+      console.log(`Could not find link from global lib folder. Skipping...`);
     }
+
     return acc;
   }, []);
 
+  console.log("Linked packages: ");
+  console.log(successes);
+
   if (successes.length !== linkableModules.length) {
-    exitProcess.npmLInkError("Linking failed for some packages.");
+    exitProcess.npmLInkError("Linking failed for some packages...");
 
   } else {
     console.log("All modules linked successfully!")
@@ -41,13 +56,7 @@ function arrayLink(linkableModules, cwd) {
 }
 
 function objectLink(linkableModuleKeys, dependencies, cwd, fallBackToInstall) {
-  const canBeLinked = linkableModuleKeys.reduce((acc, item) => {
-    const linkCall = spawnSync("npm", ["link", item], {cwd});
-    if (linkCall.status === 0) {
-      return acc.concat([item]);
-    }
-    return acc;
-  }, []);
+  const canBeLinked = linkableModuleKeys;
 
   if (fallBackToInstall) {
     console.log("Running install for packages that cannot be linked");
@@ -135,10 +144,15 @@ if (require.main === module) {
   }
 
   console.log("Starting npm linking...");
+  const modulePath = path.join(cwd, "node_modules");
 
-  const installedModules = fs.readdirSync(path.join(cwd, "node_modules"));
+  let installedModules = [];
+  if (fs.existsSync(modulePath)) {
+    installedModules = fs.readdirSync(modulePath);
+  }
+
   const moduleReducer = (acc, item) => {
-    if (installedModules.indexOf(item) === -1) {
+    if (installedModules.indexOf(item) === -1 && checkIfInitialLinkExists(item)) {
       return acc.concat([item]);
     }
     return acc;

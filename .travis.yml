@@ -1,3 +1,6 @@
+os:
+  - linux
+  - osx
 language: node_js
 install:
   - npm install
@@ -7,12 +10,16 @@ node_js:
   - "8"
   - "9"
   - "10"
+before_script:
+  - cd tests/dummies/a && npm link && cd ../../..
+  - cd tests/dummies/b && npm link && cd ../../..
 
 jobs:
   include:
   - stage: npm release
     node_js: '8'
     skip_cleanup: true
+    if: branch = master
     script: echo "Deploying to npm"
     deploy:
       provider: npm
@@ -20,5 +27,4 @@ jobs:
       api_key: ${NPM_API_TOKEN}
       on:
         tags: true
-        branch: master
         repo: XC-/npm-linkDependencies

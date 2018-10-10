@@ -13,7 +13,7 @@ function exitWithCode(code) {
 }
 
 module.exports = {
-  npmLinkError: exitWithCode(5),
+  npmLInkError: exitWithCode(5),
   npmInstallError: exitWithCode(4),
   initialNpmLinkError: exitWithCode(3),
   configurationValidationError: exitWithCode(2),
