@@ -14,7 +14,7 @@
     "installPeerDependencies": true,
     "dependencies": [
       "a",
-      "g"
+      "b"
     ]
   }
 }
