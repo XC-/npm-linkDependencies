@@ -1,6 +1,6 @@
 {
   "name": "npm-linkdependencies",
-  "version": "1.0.0-beta1",
+  "version": "1.0.0-rc1",
   "description": "Tool to help with npm package development",
   "main": " ",
   "scripts": {
@@ -22,6 +22,14 @@
     "jasmine": "3.2.0"
   },
   "keywords": [
-    "npm", "link", "dependencies", "npm link", "linkdependencies", "linkDependencies", "development", "tool", "package.json"
+    "npm",
+    "link",
+    "dependencies",
+    "npm link",
+    "linkdependencies",
+    "linkDependencies",
+    "development",
+    "tool",
+    "package.json"
   ]
 }
