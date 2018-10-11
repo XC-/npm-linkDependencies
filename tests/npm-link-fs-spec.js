@@ -5,6 +5,14 @@ const { spawnSync } = require("child_process");
 
 const { readAndValidateSettings } = require("../src/utils/configuration");
 
+let npmCmd;
+
+if (process.platform === "win32") {
+    npmCmd = "npm.cmd";
+} else {
+    npmCmd = "npm";
+}
+
 const pkgBase = {
   "version": "0.0.1",
   "description": "dummy pkg",
@@ -37,11 +45,11 @@ describe("Run npm linking", () => {
 
   beforeAll(() => {
     process.chdir(path.join(owd, "tests", "dummies", "a"));
-    const linkA = spawnSync("npm", ["link"]);
+    const linkA = spawnSync(npmCmd, ["link"]);
     expect(linkA.status).toEqual(0);
 
     process.chdir(path.join(owd, "tests", "dummies", "b"));
-    const linkB = spawnSync("npm", ["link"]);
+    const linkB = spawnSync(npmCmd, ["link"]);
     expect(linkB.status).toEqual(0);
 
     process.chdir(owd);
@@ -49,8 +57,8 @@ describe("Run npm linking", () => {
 
   afterAll(() => {
     process.chdir(owd);
-    const rmA = spawnSync("npm", ["rm", "--global", "a"]);
-    const rmB = spawnSync("npm", ["rm", "--global", "b"]);
+    const rmA = spawnSync(npmCmd, ["rm", "--global", "a"]);
+    const rmB = spawnSync(npmCmd, ["rm", "--global", "b"]);
     const clearA = fs.removeSync(path.join(owd, "tests", "dummies", "a", "package-lock.json"));
     const clearB = fs.removeSync(path.join(owd, "tests", "dummies", "b", "package-lock.json"));
     expect(rmA.status).toEqual(0);

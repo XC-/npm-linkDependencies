@@ -6,6 +6,17 @@ const { spawnSync } = require("child_process");
 const { readAndValidateSettings } = require("./utils/configuration");
 const exitProcess = require("./utils/process");
 
+let npmCmd;
+let globalLib = "node_modules";
+
+if (process.platform === "win32") {
+  npmCmd = "npm.cmd";
+} else {
+  npmCmd = "npm";
+  globalLib = path.join("lib", "node_modules");
+}
+
+
 function printHeader() {
   console.log(`
     |***********************************************************************|
@@ -17,8 +28,8 @@ function printHeader() {
 }
 
 function checkIfInitialLinkExists(pkg) {
-  const npmPrefix = spawnSync("npm", ["prefix", "-g"]).stdout.toString().trim();
-  const libPath = path.join(npmPrefix, "lib", "node_modules", pkg);
+  const npmPrefix = spawnSync(npmCmd, ["prefix", "-g"]).stdout.toString().trim();
+  const libPath = path.join(npmPrefix, globalLib, pkg);
   return fs.existsSync(libPath) && fs.lstatSync(libPath).isSymbolicLink();
 }
 
@@ -27,7 +38,7 @@ function arrayLink(linkableModules, cwd) {
     console.log(`Linking ${item}`);
 
     if (checkIfInitialLinkExists(item)) {
-      const call = spawnSync("npm", ["link", item], {cwd});
+      const call = spawnSync(npmCmd, ["link", item], {cwd});
 
       if (call.status === 0) {
         console.log("Linking successful!");
@@ -64,7 +75,7 @@ function objectLink(linkableModuleKeys, dependencies, cwd, fallBackToInstall) {
     if (mustBeInstalled.length > 0) {
       const installSuccesses = mustBeInstalled.reduce((acc, item) => {
         console.log(`Running install for ${item} (${dependencies[item]})`);
-        const installCall = spawnSync("npm", ["install", dependencies[item], "--no-save"], {cwd});
+        const installCall = spawnSync(npmCmd, ["install", dependencies[item], "--no-save"], {cwd});
         if (installCall.status === 0) {
           return acc.concat([item]);
         } else {
@@ -89,7 +100,7 @@ function objectLink(linkableModuleKeys, dependencies, cwd, fallBackToInstall) {
   if (canBeLinked.length > 0) {
     const linkingSuccesses = canBeLinked.reduce((acc, item) => {
       console.log(`Running npm link for ${item}`);
-      const linkCall = spawnSync("npm", ["link", item], {cwd});
+      const linkCall = spawnSync(npmCmd, ["link", item], {cwd});
       if (linkCall.status === 0) {
         return acc.concat([item]);
       } else {
@@ -144,7 +155,7 @@ if (require.main === module) {
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   if (settings.createLink === true) {
-    const createLinkCall = spawnSync("npm",["link"], {cwd});
+    const createLinkCall = spawnSync(npmCmd,["link"], {cwd});
     if (createLinkCall.status === 0) {
       console.log("Created initial npm link for the package successfully...")
     } else {
