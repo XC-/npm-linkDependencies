@@ -13,18 +13,21 @@ node_js:
 before_script:
   - cd tests/dummies/a && npm link && cd ../../..
   - cd tests/dummies/b && npm link && cd ../../..
+branches:
+  only:
+    - master
+    - development
 
 jobs:
   include:
-  - stage: npm release
-    node_js: '8'
-    skip_cleanup: true
-    if: branch = master
-    script: echo "Deploying to npm"
-    deploy:
-      provider: npm
-      email: nenshou.sora@gmail.com
-      api_key: ${NPM_API_TOKEN}
-      on:
-        tags: true
-        repo: XC-/npm-linkDependencies
+    - stage: npm release
+      node_js: '8'
+      skip_cleanup: true
+      script: echo "Deploying to npm"
+      deploy:
+        provider: npm
+        email: nenshou.sora@gmail.com
+        api_key: ${NPM_API_TOKEN}
+        on:
+          tags: true
+          repo: XC-/npm-linkDependencies
