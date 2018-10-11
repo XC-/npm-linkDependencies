@@ -39,12 +39,18 @@ script also takes care of running `npm link` in the package to be linked.
 
 ### linkDependencies
 
+**package.json**:
 ```
 {
-  "installPeerDependencies": false,
-  "createLink": false,
-  "fallbackToInstall: false,
-  "dependencies": [...list of package names] or { object with relative paths }
+  "name": "example-package",
+  ...snip...
+  "linkDependencies": {
+    "installPeerDependencies": false,
+    "createLink": false,
+    "fallbackToInstall: false,
+    "dependencies": [...list of package names] or { object with relative paths }
+  }
+  ...snip...
 }
 ```
 
@@ -62,9 +68,9 @@ script also takes care of running `npm link` in the package to be linked.
 
 ### NodeJS and OS support
 
-npm-linkDependencies has been tested to work with NodeJS 6.x to 10.x in Linux and OSX environments using Travis CI. Windows is not
-currently supported but testing will soon start with it as well. Unfortunately right now it cannot be automated and will be run only
-locally. This means that at first, Windows support level will be "works on my machine" until test automation can be implemented for it.
+npm-linkDependencies has been tested to work with NodeJS 6.x to 10.x in Linux and OSX environments using Travis CI.
+It has also been tested on Windows 10 (in Powershell and Git Bash) and the tests pass. However, Windows testing has
+not been automated.
 
 ### Tests
 

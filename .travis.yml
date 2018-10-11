@@ -1,25 +1,25 @@
 os:
-  - linux
-  - osx
+- linux
+- osx
 language: node_js
 install:
-  - npm install
+- npm install
 node_js:
-  - "6"
-  - "7"
-  - "8"
-  - "9"
-  - "10"
+- "6"
+- "7"
+- "8"
+- "9"
+- "10"
 
 jobs:
   include:
-    - stage: npm release
-      node_js: '8'
-      skip_cleanup: true
-      deploy:
-        provider: npm
-        email: nenshou.sora@gmail.com
-        api_key: ${NPM_API_TOKEN}
-        on:
-          tags: true
-          repo: XC-/npm-linkDependencies
+  - stage: npm release
+    node_js: '8'
+    skip_cleanup: true
+    deploy:
+      provider: npm
+      email: nenshou.sora@gmail.com
+      api_key: ${NPM_API_TOKEN}
+      on:
+        tags: true
+        repo: XC-/npm-linkDependencies
