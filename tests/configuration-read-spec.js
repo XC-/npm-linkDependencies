@@ -1,7 +1,4 @@
 const path = require("path");
-const fs = require("fs");
-
-const { spawnSync } = require("child_process");
 
 const { readAndValidateSettings } = require("../src/utils/configuration");
 
@@ -14,7 +11,8 @@ describe("Validate configurations", () => {
     expect(readAndValidateSettings(pkgFile)).toEqual(jasmine.objectContaining({
       "fallbackToInstall": false,
       "createLink": false,
-      "installPeerDependencies": false
+      "installPeerDependencies": false,
+      "autoOverrideLink": false
     }));
   });
 
@@ -23,7 +21,8 @@ describe("Validate configurations", () => {
     expect(readAndValidateSettings(pkgFile)).toEqual(jasmine.objectContaining({
       "fallbackToInstall": true,
       "createLink": true,
-      "installPeerDependencies": true
+      "installPeerDependencies": true,
+      "autoOverrideLink": true
     }));
   });
 

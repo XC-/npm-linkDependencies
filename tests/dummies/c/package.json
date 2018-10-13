@@ -12,6 +12,7 @@
     "fallbackToInstall": true,
     "createLink": true,
     "installPeerDependencies": true,
+    "autoOverrideLink": true,
     "dependencies": [
       "a",
       "b"

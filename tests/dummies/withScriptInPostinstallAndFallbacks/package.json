@@ -4,7 +4,8 @@
   "description": "dummy pkg",
   "main": " ",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "node ../../../src/npm-linkdependencies.js"
   },
   "author": "",
   "license": "ISC",
@@ -15,7 +16,7 @@
     "autoOverrideLink": true,
     "dependencies": {
       "a": "lodash",
-      "g": "async"
+      "g": "fs-extra"
     }
   },
   "dependencies": {

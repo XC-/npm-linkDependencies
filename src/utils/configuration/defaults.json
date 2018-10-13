@@ -1,5 +1,6 @@
 {
-  "installPeerDependencies": false,
+  "autoOverrideLink": false,
+  "createLink": false,
   "fallbackToInstall": false,
-  "createLink": false
+  "installPeerDependencies": false
 }

@@ -19,6 +19,7 @@ function validateSettings(settings) {
   for (const key in settings) {
     if (settings.hasOwnProperty(key)) {
       switch (key) {
+        case "autoOverrideLink":
         case "installPeerDependencies":
         case "fallbackToInstall":
         case "createLink":
