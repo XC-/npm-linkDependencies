@@ -43,7 +43,6 @@ describe("Run npm linking", () => {
   };
 
   beforeAll(() => {
-
     process.chdir(path.join(owd, "tests", "dummies", "linkPkgA"));
     const linkA = spawnSync(npmCmd, ["link"]);
     expect(linkA.status).toEqual(0);
@@ -53,7 +52,6 @@ describe("Run npm linking", () => {
     expect(linkB.status).toEqual(0);
 
     process.chdir(owd);
-
   });
 
   afterAll(() => {
@@ -232,14 +230,10 @@ describe("Run npm linking", () => {
 
     afterAll(() => {
       process.chdir(owd);
-      const rmA = spawnSync(npmCmd, ["rm", "--global", "a"]);
-      const rmB = spawnSync(npmCmd, ["rm", "--global", "b"]);
       const rmC = spawnSync(npmCmd, ["rm", "--global", "async"]);
-      const clearA = fs.removeSync(path.join(owd, "tests", "dummies", "linkPkgA", "package-lock.json"));
-      const clearB = fs.removeSync(path.join(owd, "tests", "dummies", "linkPkgB", "package-lock.json"));
-      expect(rmA.status).toEqual(0);
-      expect(rmB.status).toEqual(0);
+      expect(rmC.status).toEqual(0);
     });
+    
     beforeEach(setup(pkgPath));
     afterEach(setup(pkgPath));
 
@@ -265,7 +259,7 @@ describe("Run npm linking", () => {
     })
   });
 
-  describe("For package withScriptInPostinstall", () => {
+ describe("For package withScriptInPostinstall", () => {
     const pkgPath = path.join(jsonPath, "withScriptInPostinstall");
 
     beforeEach(setup(pkgPath));
