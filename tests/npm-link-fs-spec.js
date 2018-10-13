@@ -233,7 +233,7 @@ describe("Run npm linking", () => {
       const rmC = spawnSync(npmCmd, ["rm", "--global", "async"]);
       expect(rmC.status).toEqual(0);
     });
-    
+
     beforeEach(setup(pkgPath));
     afterEach(setup(pkgPath));
 

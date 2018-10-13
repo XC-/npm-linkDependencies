@@ -91,7 +91,6 @@ if (require.main === module) {
           console.log("fallbackToInstall is not supported when dependencies are defined as an array. Ignoring the configuration...\n\r");
         }
         const linkableModules = settings.dependencies.reduce(moduleReducer, []);
-        console.log(settings, linkableModules);
         if (linkableModules.length > 0) {
           return arrayLink(linkableModules, cwd);
         } else {

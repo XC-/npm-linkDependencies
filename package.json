@@ -21,6 +21,9 @@
     "fs-extra": "7.0.0",
     "jasmine": "3.2.0"
   },
+  "bin": {
+    "npm-linkdependencies": "./src/npm-linkdependencies.js"
+  },
   "keywords": [
     "npm",
     "link",
