@@ -1,7 +1,4 @@
 const path = require("path");
-const fs = require("fs");
-
-const { spawnSync } = require("child_process");
 
 const { readAndValidateSettings } = require("../src/utils/configuration");
 
@@ -20,6 +17,11 @@ describe("Validate configurations", () => {
   });
 
   describe("should throw error", () => {
+    it("when createLink is not boolean", () => {
+      const pkgFile = path.join(jsonPath, "wrongAutoOverRideLink");
+      expect(readAndValidateSettings.bind(null, pkgFile)).toThrow();
+    });
+
     it("when createLink is not boolean", () => {
       const pkgFile = path.join(jsonPath, "wrongCreateLink");
       expect(readAndValidateSettings.bind(null, pkgFile)).toThrow();

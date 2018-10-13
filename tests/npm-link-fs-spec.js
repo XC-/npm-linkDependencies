@@ -1,10 +1,9 @@
 const path = require("path");
+const fsOrig = require("fs");
 const fs = require("fs-extra");
 
 const { spawnSync } = require("child_process");
-
-const { readAndValidateSettings } = require("../src/utils/configuration");
-
+const { getGlobalNodeModulesLocation } = require("../src/utils/link/create");
 let npmCmd;
 
 if (process.platform === "win32") {
@@ -24,7 +23,6 @@ const pkgBase = {
   "license": "ISC"
 };
 
-
 describe("Run npm linking", () => {
   const owd = process.cwd();
   const jsonPath = path.join(owd, "tests", "dummies");
@@ -34,6 +32,7 @@ describe("Run npm linking", () => {
 
   const setup = (pkgPath) => {
     return () => {
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
       fs.removeSync(path.join(pkgPath, "node_modules"));
       fs.removeSync(path.join(pkgPath, "package-lock.json"));
       if (fs.pathExistsSync(path.join(pkgPath, "node_modules")) || fs.pathExistsSync(path.join(pkgPath, "package-lock.json"))) {
@@ -44,23 +43,25 @@ describe("Run npm linking", () => {
   };
 
   beforeAll(() => {
-    process.chdir(path.join(owd, "tests", "dummies", "a"));
+
+    process.chdir(path.join(owd, "tests", "dummies", "linkPkgA"));
     const linkA = spawnSync(npmCmd, ["link"]);
     expect(linkA.status).toEqual(0);
 
-    process.chdir(path.join(owd, "tests", "dummies", "b"));
+    process.chdir(path.join(owd, "tests", "dummies", "linkPkgB"));
     const linkB = spawnSync(npmCmd, ["link"]);
     expect(linkB.status).toEqual(0);
 
     process.chdir(owd);
+
   });
 
   afterAll(() => {
     process.chdir(owd);
     const rmA = spawnSync(npmCmd, ["rm", "--global", "a"]);
     const rmB = spawnSync(npmCmd, ["rm", "--global", "b"]);
-    const clearA = fs.removeSync(path.join(owd, "tests", "dummies", "a", "package-lock.json"));
-    const clearB = fs.removeSync(path.join(owd, "tests", "dummies", "b", "package-lock.json"));
+    const clearA = fs.removeSync(path.join(owd, "tests", "dummies", "linkPkgA", "package-lock.json"));
+    const clearB = fs.removeSync(path.join(owd, "tests", "dummies", "linkPkgB", "package-lock.json"));
     expect(rmA.status).toEqual(0);
     expect(rmB.status).toEqual(0);
   });
@@ -221,4 +222,113 @@ describe("Run npm linking", () => {
     });
   });
 
+  describe("For package withFallbackInstalledGlobally (same as d but with one package installed globally)", () => {
+    const pkgPath = path.join(jsonPath, "withFallbackInstalledGlobally");
+
+    beforeAll(() => {
+      const rmA = spawnSync(npmCmd, ["install", "-g", "async"]);
+      expect(rmA.status).toEqual(0);
+    });
+
+    afterAll(() => {
+      process.chdir(owd);
+      const rmA = spawnSync(npmCmd, ["rm", "--global", "a"]);
+      const rmB = spawnSync(npmCmd, ["rm", "--global", "b"]);
+      const rmC = spawnSync(npmCmd, ["rm", "--global", "async"]);
+      const clearA = fs.removeSync(path.join(owd, "tests", "dummies", "linkPkgA", "package-lock.json"));
+      const clearB = fs.removeSync(path.join(owd, "tests", "dummies", "linkPkgB", "package-lock.json"));
+      expect(rmA.status).toEqual(0);
+      expect(rmB.status).toEqual(0);
+    });
+    beforeEach(setup(pkgPath));
+    afterEach(setup(pkgPath));
+
+    it("successfully", () => {
+      const linkCall = spawnSync("node", [scriptPath]);
+      expect(linkCall.status).toEqual(0);
+    });
+
+    it("should have correct pkg a", () => {
+      const linkCall = spawnSync("node", [scriptPath]);
+      const pkgAJson = require(path.join(pkgPath, "node_modules", "a", "package.json"));
+      expect(pkgAJson).toEqual(pkgA);
+    });
+
+    it("should not have package g", () => {
+      const linkCall = spawnSync("node", [scriptPath]);
+      expect(fs.pathExistsSync(path.join(pkgPath, "node_modules", "g"))).toBe(false);
+    });
+
+    it("should have installed package async instead of g", () => {
+      const linkCall = spawnSync("node", [scriptPath]);
+      expect(fs.pathExistsSync(path.join(pkgPath, "node_modules", "async"))).toBe(true);
+    })
+  });
+
+  describe("For package withScriptInPostinstall", () => {
+    const pkgPath = path.join(jsonPath, "withScriptInPostinstall");
+
+    beforeEach(setup(pkgPath));
+    afterEach(setup(pkgPath));
+
+    it("successfully", () => {
+      const linkCall = spawnSync("node", [scriptPath]);
+      expect(linkCall.status).toEqual(0);
+    });
+
+    it("should have correct pkg a", () => {
+      const linkCall = spawnSync("node", [scriptPath]);
+      const pkgAJson = require(path.join(pkgPath, "node_modules", "a", "package.json"));
+      expect(pkgAJson).toEqual(pkgA);
+    });
+
+    it("should have correct pkg b", () => {
+      const linkCall = spawnSync("node", [scriptPath]);
+      const pkgBJson = require(path.join(pkgPath, "node_modules", "b", "package.json"));
+      expect(pkgBJson).toEqual(pkgB);
+    });
+
+    it("successfully via npm install", () => {
+      const linkCall = spawnSync(npmCmd, ["install"]);
+      expect(linkCall.status).toEqual(0);
+    });
+  });
+
+  describe("For package withScriptInPostinstallAndFallbacks", () => {
+    const pkgPath = path.join(jsonPath, "withScriptInPostinstallAndFallbacks");
+
+    beforeEach(setup(pkgPath));
+    afterEach(setup(pkgPath));
+
+    it("successfully", () => {
+      const linkCall = spawnSync(npmCmd, ["install"]);
+      expect(linkCall.status).toEqual(0);
+    });
+
+    it("should have correct pkg a", () => {
+      const linkCall = spawnSync(npmCmd, ["install"]);
+      const pkgAJson = require(path.join(pkgPath, "node_modules", "a", "package.json"));
+      expect(pkgAJson).toEqual(pkgA);
+    });
+
+    it("should not have package g", () => {
+      const linkCall = spawnSync(npmCmd, ["install"]);
+      expect(fs.pathExistsSync(path.join(pkgPath, "node_modules", "g"))).toBe(false);
+    });
+
+    it("should have installed package fs-extra instead of g", () => {
+      const linkCall = spawnSync(npmCmd, ["install"]);
+      expect(fs.pathExistsSync(path.join(pkgPath, "node_modules", "fs-extra"))).toBe(true);
+    });
+
+    it("should have installed package async", () => {
+      const linkCall = spawnSync(npmCmd, ["install"]);
+      expect(fs.pathExistsSync(path.join(pkgPath, "node_modules", "async"))).toBe(true);
+    });
+
+    it("successfully via npm install", () => {
+      const linkCall = spawnSync(npmCmd, ["install"]);
+      expect(linkCall.status).toEqual(0);
+    });
+  });
 });

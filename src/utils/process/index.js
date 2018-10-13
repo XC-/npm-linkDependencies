@@ -1,3 +1,4 @@
+
 function printErrorBanner() {
   console.log(`
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -9,7 +10,10 @@ function printErrorBanner() {
 }
 
 function exitWithCode(code) {
-  return (message) => {
+  return function() {
+    const messageArray = Object.keys(arguments)
+      .map((key) => (typeof arguments[key] === "string") ? arguments[key] : JSON.stringify(arguments[key]));
+    const message = messageArray.join("\n\r");
     if (message) {
       if (code === 0) {
         console.log(message);
@@ -24,10 +28,12 @@ function exitWithCode(code) {
 }
 
 module.exports = {
-  npmLInkError: exitWithCode(5),
-  npmInstallError: exitWithCode(4),
-  initialNpmLinkError: exitWithCode(3),
-  configurationValidationError: exitWithCode(2),
-  genericError: exitWithCode(1),
-  success: exitWithCode(0)
+  exit: {
+    npmLinkError: exitWithCode(5),
+    npmInstallError: exitWithCode(4),
+    initialNpmLinkError: exitWithCode(3),
+    configurationValidationError: exitWithCode(2),
+    genericError: exitWithCode(1),
+    success: exitWithCode(0)
+  }
 };
