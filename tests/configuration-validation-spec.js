@@ -22,23 +22,33 @@ describe("Validate configurations", () => {
       expect(readAndValidateSettings.bind(null, pkgFile)).toThrow();
     });
 
-    it("when createLink is not boolean", () => {
+    it("when createLink is not a boolean", () => {
       const pkgFile = path.join(jsonPath, "wrongCreateLink");
       expect(readAndValidateSettings.bind(null, pkgFile)).toThrow();
     });
 
-    it("when fallbackToInstall is not boolean", () => {
+    it("when fallbackToInstall is not a boolean", () => {
       const pkgFile = path.join(jsonPath, "wrongFallbackToInstall");
       expect(readAndValidateSettings.bind(null, pkgFile)).toThrow();
     });
 
-    it("when installPeerDependencies is not boolean", () => {
+    it("when installPeerDependencies is not a boolean", () => {
       const pkgFile = path.join(jsonPath, "wrongInstallPeerDependencies");
       expect(readAndValidateSettings.bind(null, pkgFile)).toThrow();
     });
 
-    it("when dependencies is not array or object", () => {
+    it("when dependencies is not an array or object", () => {
       const pkgFile = path.join(jsonPath, "wrongDependencies");
+      expect(readAndValidateSettings.bind(null, pkgFile)).toThrow();
+    });
+
+    it("when environmentKey is not string", () => {
+      const pkgFile = path.join(jsonPath, "wrongEnvironmentKey");
+      expect(readAndValidateSettings.bind(null, pkgFile)).toThrow();
+    });
+
+    it("when skipInEnvironments is not an array", () => {
+      const pkgFile = path.join(jsonPath, "wrongSkipInEnvironment");
       expect(readAndValidateSettings.bind(null, pkgFile)).toThrow();
     });
   });

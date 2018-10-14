@@ -12,7 +12,8 @@ describe("Validate configurations", () => {
       "fallbackToInstall": false,
       "createLink": false,
       "installPeerDependencies": false,
-      "autoOverrideLink": false
+      "autoOverrideLink": false,
+      "environmentKey": "ENVIRONMENT"
     }));
   });
 
@@ -22,7 +23,8 @@ describe("Validate configurations", () => {
       "fallbackToInstall": true,
       "createLink": true,
       "installPeerDependencies": true,
-      "autoOverrideLink": true
+      "autoOverrideLink": true,
+      "environmentKey": "ENVIRONMENT"
     }));
   });
 
