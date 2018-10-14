@@ -9,7 +9,7 @@ function readSettings(dir) {
   const packageJson = require(path.join(dir, "package.json"));
 
   if (Object.keys(packageJson).indexOf(LINK_DEPENDENCIES_CONF_KEY) > -1) {
-    return Object.assign(defaults, packageJson[LINK_DEPENDENCIES_CONF_KEY]);
+    return Object.assign({}, defaults, packageJson[LINK_DEPENDENCIES_CONF_KEY]);
   }
   return defaults;
 }

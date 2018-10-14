@@ -25,11 +25,23 @@ function validateSettings(settings) {
         case "createLink":
           validators.bool(settings[key], key);
           break;
+        case "environmentKey":
+          validators.str(settings[key], key);
+          break;
+        case "skipInEnvironments":
+          if (Array.isArray(settings[key])) {
+            for (const entry in settings[key]) {
+              validators.str(entry, entry);
+            }
+          } else {
+            throwTypeError(key, "array", typeof settings[key]);
+          }
+          break;
         case "dependencies":
           if (settings[key]) {
             if (Array.isArray(settings[key])) {
               for (const entry in settings[key]) {
-                validators.str(entry, entry)
+                validators.str(entry, entry);
               }
             } else if (typeof settings[key] === "object") {
               for (const depKey in settings[key]) {

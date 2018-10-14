@@ -325,4 +325,50 @@ describe("Run npm linking", () => {
       expect(linkCall.status).toEqual(0);
     });
   });
+
+  describe("For package skipInEnvironment", () => {
+    const pkgPath = path.join(jsonPath, "skipInEnvironment");
+    const env = Object.create(process.env);
+    env["MY_ENV"] = "TESTING";
+
+    beforeEach(setup(pkgPath));
+    afterEach(setup(pkgPath));
+
+    it("successfully", () => {
+      const linkCall = spawnSync("node", [scriptPath], {env});
+      expect(linkCall.status).toEqual(0);
+    });
+
+    it("should skip most of the script", () => {
+      const linkCall = spawnSync("node", [scriptPath], {env});
+      const stdout = linkCall.stdout.toString().trim();
+      expect(stdout.indexOf("Detected an environment that should be skipped.")).not.toEqual(-1);
+    });
+  });
+
+  describe("For package skipInEnvironmentDoesNotMatch", () => {
+    const pkgPath = path.join(jsonPath, "skipInEnvironmentDoesNotMatch");
+    const env = Object.create(process.env);
+    env["MY_ENV"] = "DEVELOPMENT";
+
+    beforeEach(setup(pkgPath));
+    afterEach(setup(pkgPath));
+
+    it("successfully", () => {
+      const linkCall = spawnSync("node", [scriptPath], {env});
+      expect(linkCall.status).toEqual(0);
+    });
+
+    it("should not skip most of the script when the env variable is set but not in the skiplist", () => {
+      const linkCall = spawnSync("node", [scriptPath], {env});
+      const stdout = linkCall.stdout.toString().trim();
+      expect(stdout.indexOf("Detected an environment that should be skipped.")).toEqual(-1);
+    });
+
+    it("should not skip most of the script when the env variable is not set", () => {
+      const linkCall = spawnSync("node", [scriptPath]);
+      const stdout = linkCall.stdout.toString().trim();
+      expect(stdout.indexOf("Detected an environment that should be skipped.")).toEqual(-1);
+    });
+  });
 });

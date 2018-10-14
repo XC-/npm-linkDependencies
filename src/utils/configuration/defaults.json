@@ -2,5 +2,6 @@
   "autoOverrideLink": false,
   "createLink": false,
   "fallbackToInstall": false,
-  "installPeerDependencies": false
+  "installPeerDependencies": false,
+  "environmentKey": "ENVIRONMENT"
 }
