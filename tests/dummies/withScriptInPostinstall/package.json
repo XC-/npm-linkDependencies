@@ -1,10 +1,11 @@
 {
-  "name": "d",
+  "name": "c",
   "version": "0.0.1",
   "description": "dummy pkg",
   "main": " ",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "node ../../../src/npm-linkdependencies.js"
   },
   "author": "",
   "license": "ISC",
@@ -13,12 +14,12 @@
     "createLink": true,
     "installPeerDependencies": true,
     "autoOverrideLink": true,
-    "dependencies": {
-      "a": "lodash",
-      "g": "async"
-    }
+    "dependencies": [
+      "a",
+      "b"
+    ]
   },
   "dependencies": {
-    "async": "^2.6.1"
+    "fs-extra": "*"
   }
 }

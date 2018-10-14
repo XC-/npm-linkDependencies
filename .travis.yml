@@ -1,33 +1,25 @@
 os:
-  - linux
-  - osx
+- linux
+- osx
 language: node_js
 install:
-  - npm install
+- npm install
 node_js:
-  - "6"
-  - "7"
-  - "8"
-  - "9"
-  - "10"
-before_script:
-  - cd tests/dummies/a && npm link && cd ../../..
-  - cd tests/dummies/b && npm link && cd ../../..
-branches:
-  only:
-    - master
-    - development
+- "6"
+- "7"
+- "8"
+- "9"
+- "10"
 
 jobs:
   include:
-    - stage: npm release
-      node_js: '8'
-      skip_cleanup: true
-      script: echo "Deploying to npm"
-      deploy:
-        provider: npm
-        email: nenshou.sora@gmail.com
-        api_key: ${NPM_API_TOKEN}
-        on:
-          tags: true
-          repo: XC-/npm-linkDependencies
+  - stage: npm release
+    node_js: '8'
+    skip_cleanup: true
+    deploy:
+      provider: npm
+      email: nenshou.sora@gmail.com
+      api_key: ${NPM_API_TOKEN}
+      on:
+        branch: /^v[0-9]+\.[0-9]+\.[0-9]+(\-[a-zA-Z0-9]+)*$/
+        repo: XC-/npm-linkDependencies

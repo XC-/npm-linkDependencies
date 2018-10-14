@@ -1,5 +1,5 @@
 {
-  "name": "d",
+  "name": "a",
   "version": "0.0.1",
   "description": "dummy pkg",
   "main": " ",
@@ -12,13 +12,7 @@
     "fallbackToInstall": true,
     "createLink": true,
     "installPeerDependencies": true,
-    "autoOverrideLink": true,
-    "dependencies": {
-      "a": "lodash",
-      "g": "async"
-    }
-  },
-  "dependencies": {
-    "async": "^2.6.1"
+    "autoOverrideLink": "foobar",
+    "dependencies": {}
   }
 }
