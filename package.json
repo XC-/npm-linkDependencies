@@ -17,8 +17,10 @@
     "url": "https://github.com/XC-/npm-linkDependencies/issues"
   },
   "homepage": "https://github.com/XC-/npm-linkDependencies#readme",
+  "dependencies": {
+    "fs-extra": "7.0.0"
+  },
   "devDependencies": {
-    "fs-extra": "7.0.0",
     "jasmine": "3.2.0"
   },
   "bin": {
