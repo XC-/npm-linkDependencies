@@ -40,30 +40,19 @@ function createLink(targetPkgName, targetPkgLocation, autoOverrideLink) {
       if (createTheLink) {
         return symlink(targetPkgLocation, link, "junction");
       } else {
-        console.log("Initial link to the package was not created.");
+        console.log(`Initial link to the package ${targetPkgName} was not created.`);
       }
     })
-    .then(()=> {
-      return new Promise((resolve, reject) => {
-        const poll = () => {
-          lstat(link)
-            .then((stats) => {
-              resolve();
-            })
-            .catch((err) => {
-              if (err && err.code === "ENOENT") {
-                setTimeout(poll, 1000);
-              } else if (err) {
-                reject(err);
-              } else (resolve)
-            });
-        };
-        poll();
-      })
-    })
     .catch((err) => {
-      console.error("Caught an error during symlink creation");
-      throw err;
+      switch(err.code) {
+        case "EEXIST":
+          console.log(`Symlink already exists and autoOverrideLink is set to ${autoOverrideLink}. Ignoring...`, err);
+          break;
+        default:
+          console.error("Caught an error during symlink creation", err);
+          throw err;
+          break;
+      }
     });
 }
 
