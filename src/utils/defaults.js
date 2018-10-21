@@ -14,7 +14,7 @@ if (process.platform === "win32") {
   globalLib = path.join("lib", "node_modules");
 }
 
-const npmGlobalLibPath = path.join(spawnSync(npmCmd, ["prefix", "-g"]).stdout.toString().trim(), globalLib);
+const npmGlobalLibPath = () => path.join(spawnSync(npmCmd, ["prefix", "-g"]).stdout.toString().trim(), globalLib);
 
 module.exports = {
   npmCmd,

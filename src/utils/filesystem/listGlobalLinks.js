@@ -5,7 +5,7 @@ const { npmGlobalLibPath } = require("../defaults");
 
 
 function listGlobalLinks() {
-  return listFiles(npmGlobalLibPath).then((files) => {
+  return listFiles(npmGlobalLibPath()).then((files) => {
     return files.filter((f) => fs.lstatSync(f).isSymbolicLink());
   });
 }

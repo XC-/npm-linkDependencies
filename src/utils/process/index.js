@@ -22,7 +22,6 @@ function exitWithCode(code) {
         console.error(message);
       }
     }
-    console.log("\nExiting link-dependencies...");
     process.exit(code);
   }
 }

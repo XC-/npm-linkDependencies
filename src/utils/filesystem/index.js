@@ -1,5 +1,7 @@
 const fs = require("fs");
 
+const { listGlobalLinks } = require("./listGlobalLinks");
+
 function exists(path, cb) {
   fs.lstat(path, (err, stat) => {
     if (err) {
@@ -42,5 +44,7 @@ function symlink(target, linkName, type) {
 module.exports = {
   exists,
   lstat,
-  symlink
+  symlink,
+
+  listGlobalLinks
 };

@@ -5,7 +5,7 @@
   "main": " ",
   "scripts": {
     "test": "jasmine --random=false tests/*-spec.js",
-    "jest": "jest tests/*-spec.js"
+    "jasmine": "jasmine --random=false"
   },
   "repository": {
     "type": "git",
@@ -24,7 +24,9 @@
     "jasmine": "3.2.0"
   },
   "bin": {
-    "npm-linkdependencies": "./src/npm-linkdependencies.js"
+    "npm-linkdependencies": "./src/npm-linkdependencies.js",
+    "npm-ld": "./src/npm-linkdependencies.js",
+    "npm-ld-listlinks": "./src/npm-ld-listlinks.js"
   },
   "keywords": [
     "npm",
