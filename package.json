@@ -26,7 +26,8 @@
   "bin": {
     "npm-linkdependencies": "./src/npm-linkdependencies.js",
     "npm-ld": "./src/npm-linkdependencies.js",
-    "npm-ld-listlinks": "./src/npm-ld-listlinks.js"
+    "npm-ld-listlinks": "./src/npm-ld-listlinks.js",
+    "npm-ld-linkall": "./src/npm-ld-linkall.js"
   },
   "keywords": [
     "npm",

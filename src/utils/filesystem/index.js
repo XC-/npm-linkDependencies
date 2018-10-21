@@ -2,6 +2,8 @@ const fs = require("fs");
 
 const { listGlobalLinks } = require("./listGlobalLinks");
 
+const { listFilesSync, listFiles, listLinkDependenciesPackages } = require("./findLDPackages");
+
 function exists(path, cb) {
   fs.lstat(path, (err, stat) => {
     if (err) {
@@ -46,5 +48,9 @@ module.exports = {
   lstat,
   symlink,
 
-  listGlobalLinks
+  listGlobalLinks,
+
+  listFilesSync,
+  listFiles,
+  listLinkDependenciesPackages
 };
